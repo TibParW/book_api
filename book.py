@@ -1,7 +1,9 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
+from flask_cors import CORS
+from pymongo import MongoClient
+from bson.objectid import ObjectId
 
-# Sample data (in-memory database for simplicity)
 books = [
     {"id": 1, "title": "The Let Them Theory: A Life-Changing Tool That Millions of People Can't Stop Talking About", "author": "Mel Robbins", "image_url": "https://images-na.ssl-images-amazon.com/images/I/91I1KDnK1kL._AC_UL381_SR381,381_.jpg"},
     {"id": 2, "title": "Forgotten Home Apothecary : 250 Powerful Remedies at Your Fingertips", "author": "Dr. Nicole Apelian", "image_url": "https://images-na.ssl-images-amazon.com/images/I/91-E86oM2IL._AC_UL381_SR381,381_.jpg"},
@@ -11,7 +13,14 @@ books = [
 
 app = Flask(__name__)
 CORS(app)
-app.config['CORS_HEADERS']='Content-Type'
+
+db_username = ""
+db_password = ""
+MONGO_URI = f"mongodb+srv://{db_username}:{db_password}@cluster0.wwovo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+
+client = MongoClient(MONGO_URI)
+db = client["Cluster0"]
+books_collection = db["books"]
 
 @app.route("/")
 def hello_world():
@@ -57,7 +66,7 @@ def update_book(book_id):
         return jsonify(book)
     else:
         return jsonify({"error": "Book not found"}), 404
-    
+
 # Delete operation
 @app.route('/books/<int:book_id>', methods=['DELETE'])
 def delete_book(book_id):
